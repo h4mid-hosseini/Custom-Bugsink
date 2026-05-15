@@ -1,0 +1,8 @@
+FROM bugsink/bugsink:2
+
+# Copy the modified code into the image
+COPY alerts/ /app/alerts/
+COPY . /app/
+
+# Rebuild to include changes
+WORKDIR /app

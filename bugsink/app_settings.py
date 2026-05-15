@@ -87,7 +87,7 @@ DEFAULTS = {
     # Security:
     "MINIMIZE_INFORMATION_EXPOSURE": False,
     "PHONEHOME": True,
-    "USE_ADMIN": False,
+    "USE_ADMIN": True,
     # Webhook outbound policy:
     # * open            : allow by default unless denied
     # * allowlist_only  : deny by default unless allow-matched

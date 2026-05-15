@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bugsinkuser
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_this_password_in_production}
+      POSTGRES_DB: bugsink
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -h db
+      retries: 5
+      start_period: 10s
+      interval: 5s
+      timeout: 5s
+
+  web:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "8800:8000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-django-insecure-change-this-in-production}
+      CREATE_SUPERUSER: ${CREATE_SUPERUSER:-admin@admin.com:admin}
+      PORT: 8000
+      DATABASE_URL: postgresql://bugsinkuser:${DB_PASSWORD:-change_this_password_in_production}@db:5432/bugsink
+      BEHIND_HTTPS_PROXY: "false"
+      USE_X_FORWARDED_HOST: "false"
+      BASE_URL: ${BASE_URL:-http://your-vps-ip:8800}
+      USE_ADMIN: ${USE_ADMIN:-false}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import requests; requests.get(\"http://localhost:8000/\").raise_for_status()'"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+volumes:
+  db-data:
